@@ -19,7 +19,14 @@
 
   function init() {
     output = document.getElementById("output");
-    wsUris.forEach((_, i) => testWebSocket(_, i + 1));
+    wsUris.forEach((_, i) =>
+      setTimeout(
+        function () {
+          testWebSocket(_, i + 1);
+        }.bind({ index: i }),
+        i * 1000
+      )
+    );
   }
 
   function testWebSocket(wsUri, index) {
