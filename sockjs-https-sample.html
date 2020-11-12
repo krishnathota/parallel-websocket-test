@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Parallel WebSocket Test</title>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.4.0/sockjs.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script> -->
+    <script src="js/sockjs.js"></script>
+    <script src="js/stomp.min.js"></script>
+    <script>
+      var socketUrl = "https://192.168.31.244:8443/websocket";
+      let counter = 0;
+      function createConnection() {
+        if (counter >= 20) {
+          return;
+        }
+        counter++;
+
+        setTimeout(
+          function () {
+            const socket = new SockJS(socketUrl);
+            const _stompClient = Stomp.over(socket);
+            _stompClient.connect(
+              {},
+              success.bind({
+                _this: this,
+                client: _stompClient,
+                index: this.counter,
+              }),
+              _stompFailure.bind({
+                _this: this,
+                client: _stompClient,
+                index: this.counter,
+              })
+            );
+          }.bind({ counter: counter }),
+          1000
+        );
+      }
+
+      function success(e) {
+        subscribeUrls = ["/topic/units/25/activityrecords"];
+        writeToScreen(
+          `<span style="color: grey;">CONNECTION: ${this.index}</span>`
+        );
+        this.client.subscribe(
+          "/topic/greetings",
+          function (message) {
+            writeToScreen(
+              `<span style="color: blue;">CONNECTION: ${this.index} RESPONSE: ${message}</span>`
+            );
+          }.bind(this)
+        );
+
+        createConnection();
+      }
+      function _stompFailure(e) {
+        writeToScreen(
+          `<span style="color: blue;">CONNECTION: ${this.index} RESPONSE: ${e}</span>`
+        );
+        console.log("err ocurred");
+      }
+      function closeConnection() {
+        _stompClient.unsubscribe();
+        _stompClient.disconnect();
+      }
+      function writeToScreen(message) {
+        const output = document.getElementById("output");
+        var pre = document.createElement("p");
+        pre.style.wordWrap = "break-word";
+        pre.innerHTML = message;
+        output.appendChild(pre);
+      }
+
+      createConnection();
+    </script>
+    <h2>Sock JS - Sample - HTTPS</h2>
+
+    <div id="output"></div>
+  </body>
+</html>

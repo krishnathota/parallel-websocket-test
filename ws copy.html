@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Parallel WebSocket Test</title>
+    <link rel="stylesheet" href="css/styles.css" />
+    <script language="javascript" type="text/javascript">
+      var wsUris = ["ws://localhost:8082/websocket"];
+      var output;
+
+      function init() {
+        output = document.getElementById("output");
+        wsUris.forEach((_, i) =>
+          setTimeout(
+            function () {
+              testWebSocket(_, i + 1);
+            }.bind({ index: i }),
+            i * 1000
+          )
+        );
+      }
+
+      function testWebSocket(wsUri, index) {
+        websocket = new WebSocket(wsUri);
+        websocket.onopen = function (evt) {
+          onOpen(evt, this.index);
+        }.bind({ index: index });
+        websocket.onclose = function (evt) {
+          onClose(evt, this.index);
+        }.bind({ index: index });
+        websocket.onmessage = function (evt) {
+          onMessage(evt, this.index);
+        }.bind({ index: index });
+        websocket.onerror = function (evt) {
+          onError(evt, this.index);
+        }.bind({ index: index });
+      }
+
+      function onOpen(evt, index) {
+        writeToScreen(`Connection - ${index}`);
+        let counter = 1;
+        setInterval(
+          function () {
+            this.socket.send(`Connection - ${index}; Message - ${counter}`);
+            counter++;
+          }.bind({ socket: evt.currentTarget }),
+          3000
+        );
+      }
+
+      function onClose(evt, index) {
+        writeToScreen(`Disconnected - ${index}`);
+      }
+
+      function onMessage(evt) {
+        writeToScreen(
+          '<span style="color: blue;">RESPONSE: ' + evt.data + "</span>"
+        );
+        //websocket.close();
+      }
+
+      function onError(evt) {
+        debugger;
+        writeToScreen('<span style="color: red;">ERROR:</span> ' + evt.data);
+      }
+
+      function doSend(message) {}
+
+      function writeToScreen(message) {
+        var pre = document.createElement("p");
+        pre.style.wordWrap = "break-word";
+        pre.innerHTML = message;
+        output.appendChild(pre);
+      }
+
+      window.addEventListener("load", init, false);
+    </script>
+  </head>
+  <body>
+    <h2>Native WebSocket Echo - HTTP - WS</h2>
+
+    <div id="output"></div>
+  </body>
+</html>

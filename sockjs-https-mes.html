@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Parallel WebSocket Test</title>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.4.0/sockjs.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script> -->
+    <script src="js/sockjs.js"></script>
+    <script src="js/stomp.min.js"></script>
+    <script>
+      var token =
+        "eyJhbGciOiJSUzI1NiIsImprdSI6Imh0dHBzOi8vMTAuMTgxLjIxNC4xMTkvdWFhL3Rva2VuX2tleXMiLCJraWQiOiJrZXktaWQtMSIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI5NDNhM2U2NzU2MDc0NDM4ODllMTYyYWNiMGMzNWRiNiIsInN1YiI6IjQ1NTZkYzQ0LWNiY2MtNDBmMS1hNjRhLTMyNmQyODBjODVlZiIsInNjb3BlIjpbIm1lcy5hcHByb3ZhbF9jb2NrcGl0LnVzZXIiLCJtZXMub3BlcmF0b3JfYXBwLmV4ZWN1dGVfd29ya19vcmRlciIsIm1lcy5yb3V0ZV9tYW5hZ2VtZW50LnVzZXIiLCJtZXMuc2VjdXJpdHlfbWFuYWdlbWVudC51c2VyIiwicm9sZXMiLCJtZXMub3BlcmF0b3JfYXBwLmNvbnN1bWVfbWF0ZXJpYWwiLCJtZXMuc3VwZXJ2aXNvcl9hcHAuY3JlYXRlX3dvcmtfb3JkZXIiLCJ1c2VyX2F0dHJpYnV0ZXMiLCJtZXMucHJvcGVydHlfZGVmaW5pdGlvbi51c2VyIiwiaXFwLmNsb3VkdXNlciIsIm1lcy5jb21tZW50c19hcHAubW9kZXJhdGVfY29tbWVudCIsIm1lcy5kb3dudGltZS51c2VyIiwibWVzLm9wZXJhdG9yX2FwcC5za2lwX29wZXJhdGlvbiIsIm1lcy5yZWNlaXZpbmdfaW5zcGVjdGlvbi51c2VyIiwibWVzLmFuYWx5c2lzLnVzZXIiLCJtZXMub3BlcmF0aW9ucy51c2VyIiwibWVzLnN1cGVydmlzb3JfYXBwLmNsb2NrX29mZl9vdGhlciIsIm1lcy5zdXBlcnZpc29yX2FwcC5jYW5jZWxfd29ya19vcmRlciIsIm1lcy5teV9tYWNoaW5lcy51c2VyIiwibWVzLnJlcG9ydHMudXNlciIsIndlYmhtaS51c2VyIiwibWVzLmFjdGl2aXRpZXMudXNlciIsIm1lcy50aW1lX2Jvb2tpbmcudXNlciIsIm1lcy5zdXBlcnZpc29yX2FwcC5jaGFuZ2VfbG90X2lkZW50aWZpZXIiLCJvcGVuaWQiLCJpcXAudXNlciIsIm1lcy5hbGFybXMudXNlciIsIm1lcy50aW1lYm9va2luZ19hcHAubW9kZXJhdGVfdGltZV9ib29raW5nIiwid2ViaG1pLmFkbWluaXN0cmF0b3IiLCJtZXMub3BlcmF0b3JfYXBwLmNyZWF0ZV9tYXRlcmlhbF9sb3QiLCJwYXNzd29yZC53cml0ZSIsIm1lcy5zdXBlcnZpc29yX2FwcC5jaGFuZ2Vfd29ya19vcmRlcl9wbGFuIiwibWVzLm5jbV9tYW5hZ2VtZW50LnVzZXIiLCJtZXMuY29uZmlndXJhdGlvbl9tYW5hZ2VtZW50LnVzZXIiLCJtZXMud2FzdGUudXNlciIsIm1lcy5lcXVpcG1lbnQudXNlciIsIm1lcy5wcm9jZXNzX29yZGVycy51c2VyIiwibWVzLndvcmtfcXVldWUudXNlciIsImlxcC5kZXZlbG9wZXIiLCJtZXMub3JkZXJfbWFuYWdlbWVudC51c2VyIiwibWVzLnN1cGVydmlzb3JfYXBwLmVkaXRfd29ya19vcmRlciJdLCJjbGllbnRfaWQiOiJpcXAtZGV2IiwiY2lkIjoiaXFwLWRldiIsImF6cCI6ImlxcC1kZXYiLCJyZXZvY2FibGUiOnRydWUsImdyYW50X3R5cGUiOiJhdXRob3JpemF0aW9uX2NvZGUiLCJ1c2VyX2lkIjoiNDU1NmRjNDQtY2JjYy00MGYxLWE2NGEtMzI2ZDI4MGM4NWVmIiwib3JpZ2luIjoidWFhIiwidXNlcl9uYW1lIjoiYm1fb3BlcmF0b3JfMSIsImVtYWlsIjoiYm1fb3BlcmF0b3JfMUB4eC5jb20iLCJhdXRoX3RpbWUiOjE2MDUwODMxOTQsInJldl9zaWciOiJjZTg1NWE2IiwiaWF0IjoxNjA1MDgzMTk1LCJleHAiOjE2MDUxMjYzOTUsImlzcyI6Imh0dHBzOi8vMTAuMTgxLjIxNC4xMTkvdWFhL29hdXRoL3Rva2VuIiwiemlkIjoidWFhIiwiYXVkIjpbIm1lcy5hY3Rpdml0aWVzIiwibWVzLnJvdXRlX21hbmFnZW1lbnQiLCJtZXMuYWxhcm1zIiwiaXFwIiwibWVzLm15X21hY2hpbmVzIiwibWVzLnN1cGVydmlzb3JfYXBwIiwibWVzLmVxdWlwbWVudCIsIm1lcy50aW1lX2Jvb2tpbmciLCJpcXAtZGV2IiwicGFzc3dvcmQiLCJtZXMuYW5hbHlzaXMiLCJtZXMub3BlcmF0b3JfYXBwIiwibWVzLm9wZXJhdGlvbnMiLCJtZXMuY29tbWVudHNfYXBwIiwibWVzLnByb3BlcnR5X2RlZmluaXRpb24iLCJtZXMuYXBwcm92YWxfY29ja3BpdCIsIm1lcy5kb3dudGltZSIsIm9wZW5pZCIsIm1lcy53YXN0ZSIsIm1lcy5yZWNlaXZpbmdfaW5zcGVjdGlvbiIsIm1lcy5yZXBvcnRzIiwibWVzLm9yZGVyX21hbmFnZW1lbnQiLCJtZXMuY29uZmlndXJhdGlvbl9tYW5hZ2VtZW50IiwibWVzLnByb2Nlc3Nfb3JkZXJzIiwibWVzLnRpbWVib29raW5nX2FwcCIsIm1lcy53b3JrX3F1ZXVlIiwibWVzLm5jbV9tYW5hZ2VtZW50IiwibWVzLnNlY3VyaXR5X21hbmFnZW1lbnQiLCJ3ZWJobWkiXX0.hzB6V7mIGgVay7iLUKnwbJSvINGPtmn1Xr1VP43-LpMSQciSdGv_ot6cvKa8zJ2ZpClZaOfy5S1pyzkibNePzwd8ajihKzzQ1bjVDuS7YenolV9Y7fgzeS9xQkO9KE-VnR02iNVpoubCMBkfyGsGpnGhZIWxsKHo88s3aECbrNQCRATIq5iQ4Uy_qG__kKO3oLn3LCu8ONXwUW9zmvhOtdo-NFmXNOmMHEyG3mkDQr3-yCJvDrqgKCv4dU0Arkj60Ana6PJwefAiHOfHL2Z3MGwFzjYYdrblncurTkiNpjXZE-Lajwh-qW8PliwAtdHMm509opRsqHMFYDvhVgPYaQ";
+      var socketUrl =
+        "https://10.181.213.231:5051/activities-app-service/activitiesService/websocket";
+      let counter = 0;
+      function createConnection() {
+        if (counter >= 10) {
+          return;
+        }
+        counter++;
+
+        setTimeout(
+          function () {
+            const socket = new SockJS(socketUrl + "?access_token=" + token);
+            const _stompClient = Stomp.over(socket);
+            _stompClient.connect(
+              {},
+              success.bind({
+                _this: this,
+                client: _stompClient,
+                index: this.counter,
+              }),
+              _stompFailure.bind({
+                _this: this,
+                client: _stompClient,
+                index: this.counter,
+              })
+            );
+          }.bind({ counter: counter }),
+          1000
+        );
+      }
+
+      function success(e) {
+        subscribeUrls = ["/topic/units/25/activityrecords"];
+        writeToScreen(
+          `<span style="color: grey;">CONNECTION: ${this.index}</span>`
+        );
+        this.client.subscribe(
+          subscribeUrls[0],
+          function (message) {
+            writeToScreen(
+              `<span style="color: blue;">CONNECTION: ${this.index} RESPONSE: ${message}</span>`
+            );
+          }.bind(this)
+        );
+
+        createConnection();
+      }
+      function _stompFailure(e) {
+        writeToScreen(
+          `<span style="color: blue;">CONNECTION: ${this.index} RESPONSE: ${e}</span>`
+        );
+        console.log("err ocurred");
+      }
+      function closeConnection() {
+        _stompClient.unsubscribe();
+        _stompClient.disconnect();
+      }
+      function writeToScreen(message) {
+        const output = document.getElementById("output");
+        var pre = document.createElement("p");
+        pre.style.wordWrap = "break-word";
+        pre.innerHTML = message;
+        output.appendChild(pre);
+      }
+
+      createConnection();
+    </script>
+    <h2>Sock JS - Autolog - TPM box - Unit 25 - HTTPS</h2>
+
+    <div id="output"></div>
+  </body>
+</html>

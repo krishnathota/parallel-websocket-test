@@ -18,5 +18,9 @@
   "homepage": "https://github.com/krishnathota/parallel-websocket-test#readme",
   "devDependencies": {
     "express": "^4.17.1"
+  },
+  "dependencies": {
+    "node-static": "^0.7.11",
+    "sockjs": "^0.3.21"
   }
 }
